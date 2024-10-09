@@ -1,0 +1,104 @@
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+public class PostgreSQLTable {
+    private static final String URL = "jdbc:postgresql://localhost:5432/DadosGerais";
+    private static final String USER = "postgres"; 
+    private static final String PASSWORD = "1234"; 
+    public static void main(String[] args) {
+        //createTable();
+        //addUsuarios();
+        //updateUsuarios();
+        deleteUsuarios(1);
+    }
+
+    public static void deleteUsuarios(int userId) {
+        String sql = "DELETE FROM users WHERE id = ?";
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // Define o ID do usuário a ser deletado
+            pstmt.setInt(1, userId);
+
+            // Executa a exclusão
+            int rowsAffected = pstmt.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("Usuário com ID " + userId + " deletado com sucesso.");
+            } else {
+                System.out.println("Nenhum usuário encontrado com ID " + userId);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void updateUsuarios() {
+        String sql = "UPDATE users SET nome = ?, email = ? WHERE id = ?";
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // Atualizando o primeiro usuário (supondo que o ID dele seja 1)
+            pstmt.setString(1, "Alice Silva");
+            pstmt.setString(2, "alice.silva@example.com");
+            pstmt.setInt(3, 1); // ID do usuário a ser atualizado
+            pstmt.executeUpdate(); // Executa a atualização
+
+            // Atualizando o segundo usuário (supondo que o ID dele seja 2)
+            pstmt.setString(1, "Bob Martins");
+            pstmt.setString(2, "bob.martins@example.com");
+            pstmt.setInt(3, 2); // ID do usuário a ser atualizado
+            pstmt.executeUpdate(); // Executa a atualização
+
+            System.out.println("Dados dos usuários atualizados com sucesso.");
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void addUsuarios() {
+        String sql = "INSERT INTO users (nome, email) VALUES (?, ?)";
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // Adicionando o primeiro usuário
+            pstmt.setString(1, "Alice");
+            pstmt.setString(2, "alice@example.com");
+            pstmt.executeUpdate(); // Executa a inserção
+
+            // Adicionando o segundo usuário
+            pstmt.setString(1, "Bob");
+            pstmt.setString(2, "bob@example.com");
+            pstmt.executeUpdate(); // Executa a inserção
+
+            System.out.println("Dois usuários adicionados com sucesso.");
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public static void createTable() {
+        String sql = "CREATE TABLE IF NOT EXISTS users (" +
+                     "id SERIAL PRIMARY KEY," +
+                     "nome VARCHAR(100) NOT NULL," +
+                     "email VARCHAR(100) NOT NULL UNIQUE" +
+                     ");";
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+             Statement stmt = conn.createStatement()) {
+            // Executa a instrução SQL
+            stmt.execute(sql);
+            System.out.println("Tabela 'users' criada com sucesso.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+}
